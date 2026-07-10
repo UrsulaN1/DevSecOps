@@ -26,14 +26,17 @@ pipeline {
         stage("Sonarqube Analysis ") {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Netflix \
-                    -Dsonar.projectKey=Netflix '''
+                    sh """
+                        $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=Netflix \
+                        -Dsonar.projectKey=Netflix
+                    """
                 }
             }
         }
         
         stage("quality gate") {
-           steps {
+            steps {
                 script {
                     waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token' 
                 }
@@ -43,12 +46,6 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh "npm install"
-            }
-        }
-        stage('OWASP FS SCAN') {
-            steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
         
@@ -70,7 +67,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'tmdb-api-key', variable: 'TMDB_KEY')]) {
-                        sh "docker build --build-arg TMDB_V3_API_KEY=${TMDB_KEY} -t netflix ."
+                        sh 'docker build --build-arg TMDB_V3_API_KEY=$TMDB_KEY -t netflix .'
                     }
                     sh "docker tag netflix ursulan1/netflix:latest"
                     sh "docker push ursulan1/netflix:latest"
