@@ -26,3 +26,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 scp-command.txt
+.gitignore
+Jenkinsfile2
+Dockerfile2
