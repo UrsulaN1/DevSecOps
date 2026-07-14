@@ -1,4 +1,4 @@
-# --- Stage 1: Build the frontend ---
+# --- Stage 1: Build the application ---
 FROM node:20-alpine as builder
 WORKDIR /app
 COPY ./package.json .
@@ -15,7 +15,9 @@ RUN VITE_API_ENDPOINT_URL="https://api.themoviedb.org/3" VITE_APP_TMDB_V3_API_KE
 FROM nginx:stable-alpine
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
+
 # Only copy the compiled static HTML/JS/CSS assets
 COPY --from=builder /app/dist . 
+
 EXPOSE 80
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
